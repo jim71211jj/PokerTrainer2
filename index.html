@@ -9,18 +9,16 @@
             background-color: #e9ecef; border-radius: 12px; padding: 30px 40px; border: 2px solid #ccc;
             display: flex; flex-direction: column; align-items: center; box-shadow: 0 8px 16px rgba(0,0,0,0.1); min-width: 380px;
         }
-        .stats-section { display: flex; flex-direction: column; gap: 20px; min-width: 250px; }
+        .stats-section { display: flex; flex-direction: column; gap: 20px; min-width: 280px; }
         .scoreboard { background-color: #fff; padding: 25px; border-radius: 12px; border: 2px solid #0056b3; text-align: center; }
         
-        /* 練習設定區樣式 */
         .settings-box {
             background-color: #fff; padding: 15px; border-radius: 12px; border: 1px solid #ccc;
             font-size: 14px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
         .settings-title { font-weight: bold; margin-bottom: 10px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-        .checkbox-item { display: flex; align-items: center; gap: 4px; background: #f1f3f5; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
-        .checkbox-item:hover { background: #e9ecef; }
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+        .checkbox-item { display: flex; align-items: center; gap: 4px; background: #f1f3f5; padding: 3px 6px; border-radius: 4px; cursor: pointer; font-size: 12px; }
         
         .poker-table {
             position: relative; width: 280px; height: 140px; background-color: #2b8a3e; border: 14px solid #5c3a21; 
@@ -29,54 +27,52 @@
         .seat {
             position: absolute; width: 42px; height: 42px; background-color: #444; color: #ccc; border-radius: 50%;
             display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; border: 2px solid #777;
-            transform: translate(-50%, -50%); transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transform: translate(-50%, -50%); transition: all 0.3s ease;
         }
-        #seat-BB { top: 0%; left: 50%; }
-        #seat-UTG { top: 20%; left: 95%; }
-        #seat-HJ { top: 80%; left: 95%; }
-        #seat-CO { top: 100%; left: 50%; }
-        #seat-BTN { top: 80%; left: 5%; }
-        #seat-SB { top: 20%; left: 5%; }
+        
+        /* 籌碼樣式修正回歸 */
         .chip {
             position: absolute; background-color: #e0e0e0; border: 2px dashed #999; border-radius: 12px;
             padding: 2px 6px; font-size: 10px; font-weight: bold; color: #333; transform: translate(-50%, -50%); z-index: 4;
         }
         #chip-bb { top: 26%; left: 50%; } 
         #chip-sb { top: 35%; left: 16%; }
+
+        #seat-BB { top: 0%; left: 50%; }
+        #seat-UTG { top: 20%; left: 95%; }
+        #seat-HJ { top: 80%; left: 95%; }
+        #seat-CO { top: 100%; left: 50%; }
+        #seat-BTN { top: 80%; left: 5%; }
+        #seat-SB { top: 20%; left: 5%; }
+        
         .seat.hero { background-color: #ff4d4d; color: white; border-color: #ffeb3b; transform: translate(-50%, -50%) scale(1.2); z-index: 10; }
         .seat.villain { background-color: #f59f00; color: white; border-color: #fff; z-index: 5; }
+        
         .hand-display-large { font-size: 64px; font-weight: bold; color: #212529; letter-spacing: 4px; margin: 25px 0; }
         .action-buttons { display: flex; justify-content: center; gap: 15px; width: 100%; }
         .action-btn { font-size: 22px; padding: 12px 0; width: 110px; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .open-btn { background-color: #ff4d4d; color: white; border: none; }
         .call-btn { background-color: #51cf66; color: #111; border: none; }
         .fold-btn { background-color: #4a6fa5; color: white; border: none; }
+        
         #feedback-msg { font-size: 28px; font-weight: bold; margin-top: 20px; height: 35px; }
         .divider { border-top: 2px dashed #bbb; margin: 30px 0; width: max-content; min-width: 540px; }
         
-        .range-btn { padding: 8px 16px; font-size: 16px; cursor: pointer; margin-right: 5px; border: 1px solid #ccc; background-color: #f8f9fa; border-radius: 4px; margin-bottom: 5px; transition: all 0.2s; }
-        .range-btn:hover { background-color: #e2e6ea; }
-        .range-btn.active { background-color: #0056b3; color: white; border-color: #004494; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .range-btn { padding: 6px 12px; font-size: 13px; cursor: pointer; margin-right: 4px; border: 1px solid #ccc; background-color: #f8f9fa; border-radius: 4px; margin-bottom: 4px; }
+        .range-btn.active { background-color: #0056b3; color: white; border-color: #004494; font-weight: bold; }
 
-        .grid-container { display: grid; grid-template-columns: repeat(13, 40px); gap: 2px; background-color: #333; padding: 10px; border-radius: 8px; width: max-content; }
-        .cell { width: 40px; height: 40px; background-color: #4a6fa5; display: flex; align-items: center; justify-content: center; font-size: 12px; color: rgba(255,255,255,0.6); }
+        .grid-container { display: grid; grid-template-columns: repeat(13, 38px); gap: 2px; background-color: #333; padding: 8px; border-radius: 8px; width: max-content; }
+        .cell { width: 38px; height: 38px; background-color: #4a6fa5; display: flex; align-items: center; justify-content: center; font-size: 11px; color: rgba(255,255,255,0.6); }
         .raise { background-color: #ff4d4d; color: white; font-weight: bold; } 
         .call { background-color: #51cf66; color: #111; font-weight: bold; } 
         
-        .range-stats {
-            margin-top: 15px; font-size: 16px; font-weight: bold; background-color: #fff;
-            padding: 10px 20px; border-radius: 8px; border: 1px solid #ccc; width: max-content;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; gap: 20px;
-        }
-        .stat-item .label { color: #555; margin-right: 5px; }
-        .stat-raise { color: #e60000; }
-        .stat-call { color: #2b8a3e; }
-        .stat-fold { color: #3b5984; }
-        .controls-row { margin-bottom: 15px; }
+        .range-stats { margin-top: 15px; font-size: 15px; font-weight: bold; background-color: #fff; padding: 10px 20px; border-radius: 8px; border: 1px solid #ccc; width: max-content; display: flex; gap: 20px; }
+        .stat-raise { color: #e60000; } .stat-call { color: #2b8a3e; } .stat-fold { color: #3b5984; }
+        .controls-row { margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <h2>我的 Poker Preflop 訓練器 (自選練習位置版)</h2>
+    <h2>我的 Poker Preflop 訓練器 (籌碼回歸修正版)</h2>
     <div class="top-container">
         <div class="game-section">
             <h3 id="table-title">UTG</h3>
@@ -98,73 +94,46 @@
 
         <div class="stats-section">
             <div class="scoreboard">
-                <div style="font-weight: bold;">🎯 答對題數: <span id="score-display">0</span> / <span id="total-display">0</span></div>
+                <div>🎯 答對題數: <span id="score-display">0</span> / <span id="total-display">0</span></div>
                 <div style="font-size: 42px; color: #2b8a3e;"><span id="accuracy-display">0</span>%</div>
                 <button class="range-btn" onclick="resetScore()" style="width: 100%;">重新計算</button>
             </div>
 
             <div class="settings-box">
                 <div class="settings-title">⚙️ 練習範圍設定</div>
-                <div style="font-size: 12px; color: #666; margin-bottom: 5px;">我的開池 (RFI)：</div>
-                <div class="checkbox-group">
-                    <label class="checkbox-item"><input type="checkbox" class="pos-check" value="UTG" checked>UTG</label>
-                    <label class="checkbox-item"><input type="checkbox" class="pos-check" value="HJ" checked>HJ</label>
-                    <label class="checkbox-item"><input type="checkbox" class="pos-check" value="CO" checked>CO</label>
-                    <label class="checkbox-item"><input type="checkbox" class="pos-check" value="BTN" checked>BTN</label>
-                    <label class="checkbox-item"><input type="checkbox" class="pos-check" value="SB" checked>SB</label>
-                </div>
-                <div style="font-size: 12px; color: #666; margin-bottom: 5px;">大盲防守 (BB)：</div>
-                <div class="checkbox-group">
-                    <label class="checkbox-item"><input type="checkbox" class="pos-check" value="BB_UTG" checked>vsUTG</label>
-                    <label class="checkbox-item"><input type="checkbox" class="pos-check" value="BB_HJ" checked>vsHJ</label>
-                    <label class="checkbox-item"><input type="checkbox" class="pos-check" value="BB_CO" checked>vsCO</label>
-                    <label class="checkbox-item"><input type="checkbox" class="pos-check" value="BB_BTN" checked>vsBTN</label>
-                    <label class="checkbox-item"><input type="checkbox" class="pos-check" value="BB_SB" checked>vsSB</label>
-                </div>
-                <div style="display: flex; gap: 5px;">
-                    <button onclick="toggleAllChecks(true)" style="flex:1; font-size:11px; cursor:pointer;">全選</button>
-                    <button onclick="toggleAllChecks(false)" style="flex:1; font-size:11px; cursor:pointer;">全不選</button>
+                <div style="font-size: 11px; color: #666;">我的開池 (RFI)：</div>
+                <div class="checkbox-group" id="check-group-rfi"></div>
+                <div style="font-size: 11px; color: #666;">大盲防守 (BB)：</div>
+                <div class="checkbox-group" id="check-group-bb"></div>
+                <div style="display: flex; gap: 5px; margin-top: 10px;">
+                    <button onclick="toggleAllChecks(true)" style="flex:1; font-size:10px;">全選</button>
+                    <button onclick="toggleAllChecks(false)" style="flex:1; font-size:10px;">全不選</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="divider"></div>
-    <h3>範圍參考表 (目前顯示: <span id="current-position">UTG</span>)</h3>
-    <div class="controls" id="range-controls">
-        <div class="controls-row">
-            <span style="font-weight:bold; margin-right:10px; color:#555;">我的 Open:</span>
-            <button class="range-btn" id="btn-UTG" onclick="changeReferenceRange('UTG')">UTG</button>
-            <button class="range-btn" id="btn-HJ" onclick="changeReferenceRange('HJ')">HJ</button>
-            <button class="range-btn" id="btn-CO" onclick="changeReferenceRange('CO')">CO</button>
-            <button class="range-btn" id="btn-BTN" onclick="changeReferenceRange('BTN')">BTN</button>
-            <button class="range-btn" id="btn-SB" onclick="changeReferenceRange('SB')">SB</button>
-        </div>
-        <div class="controls-row">
-            <span style="font-weight:bold; margin-right:10px; color:#555;">大盲防守:</span>
-            <button class="range-btn" id="btn-BB_UTG" onclick="changeReferenceRange('BB_UTG')">vs UTG</button>
-            <button class="range-btn" id="btn-BB_HJ" onclick="changeReferenceRange('BB_HJ')">vs HJ</button>
-            <button class="range-btn" id="btn-BB_CO" onclick="changeReferenceRange('BB_CO')">vs CO</button>
-            <button class="range-btn" id="btn-BB_BTN" onclick="changeReferenceRange('BB_BTN')">vs BTN</button>
-            <button class="range-btn" id="btn-BB_SB" onclick="changeReferenceRange('BB_SB')">vs SB</button>
-        </div>
-    </div>
+    <h3 id="ref-title">範圍參考表</h3>
+    <div class="controls" id="range-controls"></div>
     <div id="poker-grid" class="grid-container"></div>
     <div class="range-stats">
-        <div class="stat-item"><span class="label">Raise:</span><span id="stat-raise" class="stat-raise">0%</span></div>
-        <div class="stat-item"><span class="label">Call:</span><span id="stat-call" class="stat-call">0%</span></div>
-        <div class="stat-item"><span class="label">Fold:</span><span id="stat-fold" class="stat-fold">0%</span></div>
+        <div>Raise: <span id="stat-raise" class="stat-raise">0%</span></div>
+        <div>Call: <span id="stat-call" class="stat-call">0%</span></div>
+        <div>Fold: <span id="stat-fold" class="stat-fold">0%</span></div>
     </div>
 
     <script>
         const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
-        const positions = ['UTG', 'HJ', 'CO', 'BTN', 'SB', 'BB_UTG', 'BB_HJ', 'BB_CO', 'BB_BTN', 'BB_SB'];
+        const rfiPos = ['UTG', 'HJ', 'CO', 'BTN', 'SB'];
+        const bbPos = ['BB_UTG', 'BB_HJ', 'BB_CO', 'BB_BTN', 'BB_SB'];
 
         function parseThreshold(sStr, oStr, pStr) {
             let hands = [];
+            if (!sStr) sStr = ""; if (!oStr) oStr = "";
             const s = sStr.replace(/\s/g, '');
             const o = oStr.replace(/\s/g, '');
-            const p = pStr.replace(/\s/g, '');
+            const p = pStr ? pStr.replace(/\s/g, '') : "";
             for (let i = 0; i < s.length; i++) {
                 let high = ranks[i], thresholdIdx = ranks.indexOf(s[i]);
                 for (let j = i + 1; j <= thresholdIdx; j++) hands.push(high + ranks[j] + 's');
@@ -173,22 +142,12 @@
                 let high = ranks[i], thresholdIdx = ranks.indexOf(o[i]);
                 for (let j = i + 1; j <= thresholdIdx; j++) hands.push(high + ranks[j] + 'o');
             }
-            if (p && p.length > 0) {
+            if (p) {
                 let thresholdIdx = ranks.indexOf(p[0]);
-                if (thresholdIdx !== -1) {
-                    for (let i = 0; i <= thresholdIdx; i++) hands.push(ranks[i] + ranks[i]);
-                }
+                for (let i = 0; i <= thresholdIdx; i++) hands.push(ranks[i] + ranks[i]);
             }
             return hands;
         }
-
-        const bbRaiseRanges = {
-            'BB_UTG': ['AA', 'KK', 'QQ', 'AKs', 'AKo'],
-            'BB_HJ': ['AA', 'KK', 'QQ', 'JJ', 'AKs', 'AQs', 'AKo'],
-            'BB_CO': ['AA', 'KK', 'QQ', 'JJ', 'TT', 'AKs', 'AQs', 'AJs', 'AKo', 'AQo'],
-            'BB_BTN': ['AA', 'KK', 'QQ', 'JJ', 'TT', '99', 'AKs', 'AQs', 'AJs', 'ATs', 'A5s', 'AKo', 'AQo', 'AJo'],
-            'BB_SB': ['AA', 'KK', 'QQ', 'JJ', 'TT', '99', '88', 'AKs', 'AQs', 'AJs', 'ATs', 'A9s', 'A5s', 'A4s', 'KQs', 'AKo', 'AQo', 'AJo', 'ATo', 'KQo']
-        };
 
         const ranges = {
             'UTG': { raise: parseThreshold('279T9', 'TJ', '66'), call: [] },
@@ -196,97 +155,92 @@
             'CO': { raise: parseThreshold('24687776', '8TTT', '44'), call: [] },
             'BTN': { raise: parseThreshold('2235666544', '48999', '22'), call: [] },
             'SB': { raise: parseThreshold('2224665544', '38999', '22'), call: [] },
-            'BB_UTG': { raise: bbRaiseRanges.BB_UTG, call: parseThreshold('223665443222', '9TTT', '22').filter(h => !bbRaiseRanges.BB_UTG.includes(h)) },
-            'BB_HJ': { raise: bbRaiseRanges.BB_HJ, call: parseThreshold('222365443222', '8TTT', '22').filter(h => !bbRaiseRanges.BB_HJ.includes(h)) },
-            'BB_CO': { raise: bbRaiseRanges.BB_CO, call: parseThreshold('222245433222', '4999', '22').filter(h => !bbRaiseRanges.BB_CO.includes(h)) },
-            'BB_BTN': { raise: bbRaiseRanges.BB_BTN, call: parseThreshold('222222432222', '258888', '22').filter(h => !bbRaiseRanges.BB_BTN.includes(h)) },
-            'BB_SB': { raise: bbRaiseRanges.BB_SB, call: parseThreshold('22225654322', '39999', '22').filter(h => !bbRaiseRanges.BB_SB.includes(h)) }
+            // BB 防守維持 Call/Fold
+            'BB_UTG': { raise: [], call: parseThreshold('223665443222', '9TTT', '22') },
+            'BB_HJ': { raise: [], call: parseThreshold('222365443222', '8TTT', '22') },
+            'BB_CO': { raise: [], call: parseThreshold('222245433222', '4999', '22') },
+            'BB_BTN': { raise: [], call: parseThreshold('222222432222', '258888', '22') },
+            'BB_SB': { raise: [], call: parseThreshold('22225654322', '39999', '22') }
         };
 
-        let currentScore = 0, totalQuestions = 0, currentQuizPos = 'UTG', currentQuizHand = '', isWaiting = false;
-
-        function updateScoreboard() {
-            document.getElementById('score-display').innerText = currentScore;
-            document.getElementById('total-display').innerText = totalQuestions;
-            document.getElementById('accuracy-display').innerText = totalQuestions ? Math.round((currentScore/totalQuestions)*100) : 0;
+        function initUI() {
+            const rfiRow = document.createElement('div'); rfiRow.className = 'controls-row'; rfiRow.innerHTML = '<b>Open: </b>';
+            rfiPos.forEach(p => {
+                document.getElementById('check-group-rfi').innerHTML += `<label class="checkbox-item"><input type="checkbox" class="pos-check" value="${p}" checked>${p}</label>`;
+                rfiRow.innerHTML += `<button class="range-btn" id="btn-${p}" onclick="changeReferenceRange('${p}')">${p}</button>`;
+            });
+            const bbRow = document.createElement('div'); bbRow.className = 'controls-row'; bbRow.innerHTML = '<b>BB Defense: </b>';
+            bbPos.forEach(p => {
+                const label = p.split('_')[1];
+                document.getElementById('check-group-bb').innerHTML += `<label class="checkbox-item"><input type="checkbox" class="pos-check" value="${p}" checked>${label}</label>`;
+                bbRow.innerHTML += `<button class="range-btn" id="btn-${p}" onclick="changeReferenceRange('${p}')">vs ${label}</button>`;
+            });
+            document.getElementById('range-controls').append(rfiRow, bbRow);
         }
 
-        // 修改：根據勾選的位置產生題目
+        let score = 0, total = 0, quizPos = 'UTG', quizHand = '', isWaiting = false;
+
         function generateNewQuestion() {
             isWaiting = false; document.getElementById('feedback-msg').innerText = '';
-            
-            // 獲取所有已勾選的位置
-            const checkedBoxes = Array.from(document.querySelectorAll('.pos-check:checked'));
-            if (checkedBoxes.length === 0) {
-                alert("請至少勾選一個位置進行練習！");
-                toggleAllChecks(true); // 自動恢復全選
-                return;
-            }
-            const enabledPositions = checkedBoxes.map(cb => cb.value);
-            
-            currentQuizPos = enabledPositions[Math.floor(Math.random() * enabledPositions.length)];
-            document.getElementById('table-title').innerText = currentQuizPos.replace('_', ' vs ');
-            updateTableDisplay(currentQuizPos);
+            const checked = Array.from(document.querySelectorAll('.pos-check:checked')).map(cb => cb.value);
+            if (!checked.length) { alert("請選位置！"); toggleAllChecks(true); return; }
+            quizPos = checked[Math.floor(Math.random() * checked.length)];
+            document.getElementById('table-title').innerText = quizPos.replace('_', ' vs ');
+            updateTableDisplay(quizPos);
             let i = Math.floor(Math.random() * 13), j = Math.floor(Math.random() * 13);
-            currentQuizHand = i < j ? ranks[i]+ranks[j]+'s' : (i > j ? ranks[j]+ranks[i]+'o' : ranks[i]+ranks[j]);
-            document.getElementById('table-hand-display').innerText = currentQuizHand;
+            quizHand = i < j ? ranks[i]+ranks[j]+'s' : (i > j ? ranks[j]+ranks[i]+'o' : ranks[i]+ranks[j]);
+            document.getElementById('table-hand-display').innerText = quizHand;
         }
 
-        function toggleAllChecks(status) {
-            document.querySelectorAll('.pos-check').forEach(cb => cb.checked = status);
-        }
-
-        function checkAnswer(userAction) {
+        function checkAnswer(ans) {
             if (isWaiting) return; isWaiting = true;
-            let range = ranges[currentQuizPos], correct = 'Fold';
-            if (range.raise.includes(currentQuizHand)) correct = 'Raise';
-            else if (range.call.includes(currentQuizHand)) correct = 'Call';
-            
-            totalQuestions++;
-            if (userAction === correct) {
-                currentScore++; document.getElementById('feedback-msg').innerText = "✅ 答對了！"; document.getElementById('feedback-msg').style.color = "#2b8a3e";
-                setTimeout(generateNewQuestion, 700);
+            let range = ranges[quizPos], correct = 'Fold';
+            if (range.raise.includes(quizHand)) correct = 'Raise';
+            else if (range.call.includes(quizHand)) correct = 'Call';
+            total++;
+            if (ans === correct) {
+                score++; document.getElementById('feedback-msg').innerText = "✅"; document.getElementById('feedback-msg').style.color = "green";
+                setTimeout(generateNewQuestion, 600);
             } else {
-                changeReferenceRange(currentQuizPos); document.getElementById('feedback-msg').innerText = `❌ 錯誤！正確是 ${correct}`; document.getElementById('feedback-msg').style.color = "#d9534f";
-                setTimeout(generateNewQuestion, 2000);
+                changeReferenceRange(quizPos); document.getElementById('feedback-msg').innerText = "❌ 正確: " + correct; document.getElementById('feedback-msg').style.color = "red";
+                setTimeout(generateNewQuestion, 1800);
             }
-            updateScoreboard();
+            document.getElementById('score-display').innerText = score; document.getElementById('total-display').innerText = total;
+            document.getElementById('accuracy-display').innerText = Math.round((score/total)*100);
         }
 
         function updateTableDisplay(pos) {
             document.querySelectorAll('.seat').forEach(s => s.classList.remove('hero', 'villain'));
-            if (pos.startsWith('BB_')) {
-                document.getElementById('seat-BB').classList.add('hero');
-                document.getElementById('seat-' + pos.split('_')[1]).classList.add('villain');
-            } else { document.getElementById('seat-' + pos).classList.add('hero'); }
+            if (pos.includes('_')) {
+                const [hero, villain] = pos.split('_');
+                const hSeat = document.getElementById('seat-' + hero); if(hSeat) hSeat.classList.add('hero');
+                const vSeat = document.getElementById('seat-' + villain); if(vSeat) vSeat.classList.add('villain');
+            } else { const hSeat = document.getElementById('seat-' + pos); if(hSeat) hSeat.classList.add('hero'); }
         }
 
         function changeReferenceRange(pos) {
             const grid = document.getElementById('poker-grid'); grid.innerHTML = '';
-            document.getElementById('current-position').innerText = pos.replace('_', ' vs ');
-            document.querySelectorAll('.range-btn').forEach(btn => btn.classList.remove('active'));
-            const activeBtn = document.getElementById('btn-' + pos);
-            if (activeBtn) activeBtn.classList.add('active');
-            let raiseCombos = 0, callCombos = 0;
+            document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+            const b = document.getElementById('btn-' + pos); if(b) b.classList.add('active');
+            let rCom = 0, cCom = 0;
             ranks.forEach((r1, i) => ranks.forEach((r2, j) => {
-                let hand = i < j ? r1+r2+'s' : (i > j ? r2+r1+'o' : r1+r2);
-                let cell = document.createElement('div'); cell.className = 'cell'; cell.innerText = hand;
-                let weight = (i === j) ? 6 : (i < j ? 4 : 12);
-                if (ranges[pos].raise.includes(hand)) { cell.classList.add('raise'); raiseCombos += weight; }
-                else if (ranges[pos].call.includes(hand)) { cell.classList.add('call'); callCombos += weight; }
+                let h = i < j ? r1+r2+'s' : (i > j ? r2+r1+'o' : r1+r2);
+                let cell = document.createElement('div'); cell.className = 'cell'; cell.innerText = h;
+                let w = (i === j) ? 6 : (i < j ? 4 : 12);
+                if (ranges[pos].raise.includes(h)) { cell.classList.add('raise'); rCom += w; }
+                else if (ranges[pos].call.includes(h)) { cell.classList.add('call'); cCom += w; }
                 grid.appendChild(cell);
             }));
-            const raisePct = ((raiseCombos / 1326) * 100).toFixed(1);
-            const callPct = ((callCombos / 1326) * 100).toFixed(1);
-            const foldPct = (100 - parseFloat(raisePct) - parseFloat(callPct)).toFixed(1);
-            document.getElementById('stat-raise').innerText = raisePct + '%';
-            document.getElementById('stat-call').innerText = callPct + '%';
-            document.getElementById('stat-fold').innerText = foldPct + '%';
+            const rPct = ((rCom/1326)*100).toFixed(1); const cPct = ((cCom/1326)*100).toFixed(1);
+            document.getElementById('stat-raise').innerText = rPct + '%';
+            document.getElementById('stat-call').innerText = cPct + '%';
+            document.getElementById('stat-fold').innerText = (100 - parseFloat(rPct) - parseFloat(cPct)).toFixed(1) + '%';
         }
 
-        function resetScore() { currentScore = 0; totalQuestions = 0; updateScoreboard(); }
-        changeReferenceRange('UTG');
-        generateNewQuestion();
+        function toggleAllChecks(s) { document.querySelectorAll('.pos-check').forEach(c => c.checked = s); }
+        function resetScore() { score = 0; total = 0; document.getElementById('score-display').innerText = 0; document.getElementById('total-display').innerText = 0; document.getElementById('accuracy-display').innerText = 0; }
+
+        initUI(); changeReferenceRange('UTG'); generateNewQuestion();
     </script>
 </body>
 </html>
