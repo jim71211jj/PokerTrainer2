@@ -30,7 +30,7 @@
             transform: translate(-50%, -50%); transition: all 0.3s ease;
         }
         
-        /* 籌碼樣式修正回歸 */
+        /* 籌碼樣式 */
         .chip {
             position: absolute; background-color: #e0e0e0; border: 2px dashed #999; border-radius: 12px;
             padding: 2px 6px; font-size: 10px; font-weight: bold; color: #333; transform: translate(-50%, -50%); z-index: 4;
@@ -61,10 +61,33 @@
         .range-btn { padding: 6px 12px; font-size: 13px; cursor: pointer; margin-right: 4px; border: 1px solid #ccc; background-color: #f8f9fa; border-radius: 4px; margin-bottom: 4px; }
         .range-btn.active { background-color: #0056b3; color: white; border-color: #004494; font-weight: bold; }
 
-        .grid-container { display: grid; grid-template-columns: repeat(13, 38px); gap: 2px; background-color: #333; padding: 8px; border-radius: 8px; width: max-content; }
-        .cell { width: 38px; height: 38px; background-color: #4a6fa5; display: flex; align-items: center; justify-content: center; font-size: 11px; color: rgba(255,255,255,0.6); }
+        /* 矩陣網格樣式 */
+        .grid-container { 
+            display: grid; 
+            grid-template-columns: repeat(13, 38px); 
+            gap: 2px; 
+            background-color: #333; 
+            padding: 8px; 
+            border-radius: 8px; 
+            width: max-content; 
+        }
+        .cell { 
+            width: 38px; 
+            height: 38px; 
+            background-color: #4a6fa5; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 11px; 
+            color: rgba(255,255,255,0.6); 
+            box-sizing: border-box; /* 確保 border 不會撐大格子 */
+        }
         .raise { background-color: #ff4d4d; color: white; font-weight: bold; } 
         .call { background-color: #51cf66; color: #111; font-weight: bold; } 
+
+        /* 十字分界線樣式：在 T 與 9 之間 */
+        .border-right-thick { border-right: 3px solid rgba(255,255,255,0.4) !important; }
+        .border-bottom-thick { border-bottom: 3px solid rgba(255,255,255,0.4) !important; }
         
         .range-stats { margin-top: 15px; font-size: 15px; font-weight: bold; background-color: #fff; padding: 10px 20px; border-radius: 8px; border: 1px solid #ccc; width: max-content; display: flex; gap: 20px; }
         .stat-raise { color: #e60000; } .stat-call { color: #2b8a3e; } .stat-fold { color: #3b5984; }
@@ -72,7 +95,7 @@
     </style>
 </head>
 <body>
-    <h2>我的 Poker Preflop 訓練器 (籌碼回歸修正版)</h2>
+    <h2>我的 Poker Preflop 訓練器 (視覺優化版)</h2>
     <div class="top-container">
         <div class="game-section">
             <h3 id="table-title">UTG</h3>
@@ -114,7 +137,7 @@
     </div>
 
     <div class="divider"></div>
-    <h3 id="ref-title">範圍參考表</h3>
+    <h3 id="ref-title">範圍參考表 (ATs-A9s 分界)</h3>
     <div class="controls" id="range-controls"></div>
     <div id="poker-grid" class="grid-container"></div>
     <div class="range-stats">
@@ -155,7 +178,6 @@
             'CO': { raise: parseThreshold('24687776', '8TTT', '44'), call: [] },
             'BTN': { raise: parseThreshold('2235666544', '48999', '22'), call: [] },
             'SB': { raise: parseThreshold('2224665544', '38999', '22'), call: [] },
-            // BB 防守維持 Call/Fold
             'BB_UTG': { raise: [], call: parseThreshold('223665443222', '9TTT', '22') },
             'BB_HJ': { raise: [], call: parseThreshold('222365443222', '8TTT', '22') },
             'BB_CO': { raise: [], call: parseThreshold('222245433222', '4999', '22') },
@@ -223,9 +245,17 @@
             document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
             const b = document.getElementById('btn-' + pos); if(b) b.classList.add('active');
             let rCom = 0, cCom = 0;
+            
             ranks.forEach((r1, i) => ranks.forEach((r2, j) => {
                 let h = i < j ? r1+r2+'s' : (i > j ? r2+r1+'o' : r1+r2);
-                let cell = document.createElement('div'); cell.className = 'cell'; cell.innerText = h;
+                let cell = document.createElement('div'); 
+                cell.className = 'cell'; 
+                cell.innerText = h;
+                
+                // --- 十字分界邏輯：T 為第 5 個位置 (索引 4) ---
+                if (j === 4) cell.classList.add('border-right-thick'); // 垂直分界線
+                if (i === 4) cell.classList.add('border-bottom-thick'); // 水平分界線
+
                 let w = (i === j) ? 6 : (i < j ? 4 : 12);
                 if (ranges[pos].raise.includes(h)) { cell.classList.add('raise'); rCom += w; }
                 else if (ranges[pos].call.includes(h)) { cell.classList.add('call'); cCom += w; }
