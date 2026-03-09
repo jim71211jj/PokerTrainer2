@@ -12,6 +12,17 @@
         .stats-section { display: flex; flex-direction: column; gap: 20px; min-width: 280px; }
         .scoreboard { background-color: #fff; padding: 25px; border-radius: 12px; border: 2px solid #0056b3; text-align: center; }
         
+        /* 錯題紀錄區樣式 */
+        .error-log-box {
+            background-color: #fff; padding: 15px; border-radius: 12px; border: 1px solid #ffcccc;
+            font-size: 13px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); max-height: 180px; overflow-y: auto;
+            display: none; /* 預設隱藏，有錯題才顯示 */
+        }
+        .error-log-title { font-weight: bold; margin-bottom: 8px; color: #d9534f; border-bottom: 1px solid #fee; padding-bottom: 5px; }
+        .error-item { border-bottom: 1px dashed #eee; padding: 5px 0; color: #555; line-height: 1.4; }
+        .error-item .hand-text { font-weight: bold; color: #111; font-size: 14px; }
+        .error-item .correct-text { color: #2b8a3e; font-weight: bold; }
+
         .settings-box {
             background-color: #fff; padding: 15px; border-radius: 12px; border: 1px solid #ccc;
             font-size: 14px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);
@@ -30,7 +41,6 @@
             transform: translate(-50%, -50%); transition: all 0.3s ease;
         }
         
-        /* 籌碼樣式 */
         .chip {
             position: absolute; background-color: #e0e0e0; border: 2px dashed #999; border-radius: 12px;
             padding: 2px 6px; font-size: 10px; font-weight: bold; color: #333; transform: translate(-50%, -50%); z-index: 4;
@@ -61,7 +71,6 @@
         .range-btn { padding: 6px 12px; font-size: 13px; cursor: pointer; margin-right: 4px; border: 1px solid #ccc; background-color: #f8f9fa; border-radius: 4px; margin-bottom: 4px; }
         .range-btn.active { background-color: #0056b3; color: white; border-color: #004494; font-weight: bold; }
 
-        /* 矩陣網格樣式 */
         .grid-container { 
             display: grid; 
             grid-template-columns: repeat(13, 38px); 
@@ -80,22 +89,22 @@
             justify-content: center; 
             font-size: 11px; 
             color: rgba(255,255,255,0.6); 
-            box-sizing: border-box; /* 確保 border 不會撐大格子 */
+            box-sizing: border-box;
         }
         .raise { background-color: #ff4d4d; color: white; font-weight: bold; } 
+        .raise-mixed { background-color: #ff9999; color: #111; font-weight: bold; } 
         .call { background-color: #51cf66; color: #111; font-weight: bold; } 
 
-        /* 十字分界線樣式：在 T 與 9 之間 */
         .border-right-thick { border-right: 3px solid rgba(255,255,255,0.4) !important; }
         .border-bottom-thick { border-bottom: 3px solid rgba(255,255,255,0.4) !important; }
         
         .range-stats { margin-top: 15px; font-size: 15px; font-weight: bold; background-color: #fff; padding: 10px 20px; border-radius: 8px; border: 1px solid #ccc; width: max-content; display: flex; gap: 20px; }
-        .stat-raise { color: #e60000; } .stat-call { color: #2b8a3e; } .stat-fold { color: #3b5984; }
+        .stat-raise { color: #e60000; } .stat-mixed { color: #ff6666; } .stat-call { color: #2b8a3e; } .stat-fold { color: #3b5984; }
         .controls-row { margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <h2>我的 Poker Preflop 訓練器 (視覺優化版)</h2>
+    <h2>我的 Poker Preflop 訓練器 (錯題記錄版)</h2>
     <div class="top-container">
         <div class="game-section">
             <h3 id="table-title">UTG</h3>
@@ -122,10 +131,17 @@
                 <button class="range-btn" onclick="resetScore()" style="width: 100%;">重新計算</button>
             </div>
 
+            <div class="error-log-box" id="error-log-box">
+                <div class="error-log-title">📝 錯題紀錄本</div>
+                <div id="error-log-content"></div>
+            </div>
+
             <div class="settings-box">
                 <div class="settings-title">⚙️ 練習範圍設定</div>
                 <div style="font-size: 11px; color: #666;">我的開池 (RFI)：</div>
                 <div class="checkbox-group" id="check-group-rfi"></div>
+                <div style="font-size: 11px; color: #666;">3-Bet (非 BB 位置)：</div>
+                <div class="checkbox-group" id="check-group-nonbb3bet"></div>
                 <div style="font-size: 11px; color: #666;">大盲防守 (BB)：</div>
                 <div class="checkbox-group" id="check-group-bb"></div>
                 <div style="display: flex; gap: 5px; margin-top: 10px;">
@@ -142,6 +158,7 @@
     <div id="poker-grid" class="grid-container"></div>
     <div class="range-stats">
         <div>Raise: <span id="stat-raise" class="stat-raise">0%</span></div>
+        <div>Mix (有時 Raise): <span id="stat-mixed" class="stat-mixed">0%</span></div>
         <div>Call: <span id="stat-call" class="stat-call">0%</span></div>
         <div>Fold: <span id="stat-fold" class="stat-fold">0%</span></div>
     </div>
@@ -149,6 +166,7 @@
     <script>
         const ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
         const rfiPos = ['UTG', 'HJ', 'CO', 'BTN', 'SB'];
+        const nonBb3BetPos = ['NonBB_3bet_HJ_CO', 'NonBB_3bet_BTN_SB']; 
         const bbPos = ['BB_UTG', 'BB_HJ', 'BB_CO', 'BB_BTN', 'BB_SB'];
 
         function parseThreshold(sStr, oStr, pStr) {
@@ -173,16 +191,28 @@
         }
 
         const ranges = {
-            'UTG': { raise: parseThreshold('279T9', 'TJ', '66'), call: [] },
-            'HJ': { raise: parseThreshold('259988', '9TJ', '55'), call: [] },
-            'CO': { raise: parseThreshold('24687776', '8TTT', '44'), call: [] },
-            'BTN': { raise: parseThreshold('2235666544', '48999', '22'), call: [] },
-            'SB': { raise: parseThreshold('2224665544', '38999', '22'), call: [] },
-            'BB_UTG': { raise: [], call: parseThreshold('223665443222', '9TTT', '22') },
-            'BB_HJ': { raise: [], call: parseThreshold('222365443222', '8TTT', '22') },
-            'BB_CO': { raise: [], call: parseThreshold('222245433222', '4999', '22') },
-            'BB_BTN': { raise: [], call: parseThreshold('222222432222', '258888', '22') },
-            'BB_SB': { raise: [], call: parseThreshold('22225654322', '39999', '22') }
+            'UTG': { raise: parseThreshold('279T9', 'TJ', '66'), mixed: [], call: [] },
+            'HJ': { raise: parseThreshold('259988', '9TJ', '55'), mixed: [], call: [] },
+            'CO': { raise: parseThreshold('24687776', '8TTT', '44'), mixed: [], call: [] },
+            'BTN': { raise: parseThreshold('2235666544', '48999', '22'), mixed: [], call: [] },
+            'SB': { raise: parseThreshold('2224665544', '38999', '22'), mixed: [], call: [] },
+            
+            'NonBB_3bet_HJ_CO': { 
+                raise: ['AA', 'AKs', 'AQs', 'AJs', 'ATs', 'AKo', 'KK', 'KQs', 'KJs', 'KTs', 'QQ', 'JJ', 'A4s'], 
+                mixed: ['A9s', 'A8s', 'A7s', 'AQo', 'KQo', 'QJs', 'TT', '99', '76s', '65s', '54s'], 
+                call: [] 
+            },
+            'NonBB_3bet_BTN_SB': {
+                raise: ['AA', 'AKs', 'AQs', 'AJs', 'ATs', 'A9s', 'A8s', 'A7s', 'A6s', 'A5s', 'A4s', 'A3s', 'AKo', 'KK', 'KQs', 'KJs', 'KTs', 'K9s', 'AQo', 'KQo', 'QQ', 'QJs', 'QTs', 'AJo', 'JJ', 'JTs', 'TT', 'T9s', '99', '88', '77'],
+                mixed: [],
+                call: []
+            },
+
+            'BB_UTG': { raise: [], mixed: [], call: parseThreshold('223665443222', '9TTT', '22') },
+            'BB_HJ': { raise: [], mixed: [], call: parseThreshold('222365443222', '8TTT', '22') },
+            'BB_CO': { raise: [], mixed: [], call: parseThreshold('222245433222', '4999', '22') },
+            'BB_BTN': { raise: [], mixed: [], call: parseThreshold('222222432222', '258888', '22') },
+            'BB_SB': { raise: [], mixed: [], call: parseThreshold('22225654322', '39999', '22') }
         };
 
         function initUI() {
@@ -191,13 +221,21 @@
                 document.getElementById('check-group-rfi').innerHTML += `<label class="checkbox-item"><input type="checkbox" class="pos-check" value="${p}" checked>${p}</label>`;
                 rfiRow.innerHTML += `<button class="range-btn" id="btn-${p}" onclick="changeReferenceRange('${p}')">${p}</button>`;
             });
+
+            const nonBb3BetRow = document.createElement('div'); nonBb3BetRow.className = 'controls-row'; nonBb3BetRow.innerHTML = '<b>3-Bet (非 BB): </b>';
+            nonBb3BetPos.forEach(p => {
+                let label = p === 'NonBB_3bet_HJ_CO' ? 'HJ/CO 3-Bet' : 'BTN/SB 3-Bet';
+                document.getElementById('check-group-nonbb3bet').innerHTML += `<label class="checkbox-item"><input type="checkbox" class="pos-check" value="${p}" checked>${label}</label>`;
+                nonBb3BetRow.innerHTML += `<button class="range-btn" id="btn-${p}" onclick="changeReferenceRange('${p}')">${label}</button>`;
+            });
+
             const bbRow = document.createElement('div'); bbRow.className = 'controls-row'; bbRow.innerHTML = '<b>BB Defense: </b>';
             bbPos.forEach(p => {
                 const label = p.split('_')[1];
                 document.getElementById('check-group-bb').innerHTML += `<label class="checkbox-item"><input type="checkbox" class="pos-check" value="${p}" checked>${label}</label>`;
                 bbRow.innerHTML += `<button class="range-btn" id="btn-${p}" onclick="changeReferenceRange('${p}')">vs ${label}</button>`;
             });
-            document.getElementById('range-controls').append(rfiRow, bbRow);
+            document.getElementById('range-controls').append(rfiRow, nonBb3BetRow, bbRow);
         }
 
         let score = 0, total = 0, quizPos = 'UTG', quizHand = '', isWaiting = false;
@@ -207,7 +245,12 @@
             const checked = Array.from(document.querySelectorAll('.pos-check:checked')).map(cb => cb.value);
             if (!checked.length) { alert("請選位置！"); toggleAllChecks(true); return; }
             quizPos = checked[Math.floor(Math.random() * checked.length)];
-            document.getElementById('table-title').innerText = quizPos.replace('_', ' vs ');
+            
+            let titleText = quizPos.replace('_', ' vs ');
+            if(quizPos === 'NonBB_3bet_HJ_CO') titleText = "HJ/CO 3-Bet";
+            if(quizPos === 'NonBB_3bet_BTN_SB') titleText = "BTN/SB 3-Bet";
+            document.getElementById('table-title').innerText = titleText;
+            
             updateTableDisplay(quizPos);
             let i = Math.floor(Math.random() * 13), j = Math.floor(Math.random() * 13);
             quizHand = i < j ? ranks[i]+ranks[j]+'s' : (i > j ? ranks[j]+ranks[i]+'o' : ranks[i]+ranks[j]);
@@ -217,34 +260,76 @@
         function checkAnswer(ans) {
             if (isWaiting) return; isWaiting = true;
             let range = ranges[quizPos], correct = 'Fold';
-            if (range.raise.includes(quizHand)) correct = 'Raise';
-            else if (range.call.includes(quizHand)) correct = 'Call';
+            
+            if (range.raise && range.raise.includes(quizHand)) correct = 'Raise';
+            else if (range.mixed && range.mixed.includes(quizHand)) correct = 'Raise'; 
+            else if (range.call && range.call.includes(quizHand)) correct = 'Call';
+            
             total++;
             if (ans === correct) {
-                score++; document.getElementById('feedback-msg').innerText = "✅"; document.getElementById('feedback-msg').style.color = "green";
+                score++; 
+                document.getElementById('feedback-msg').innerText = "✅"; 
+                document.getElementById('feedback-msg').style.color = "green";
                 setTimeout(generateNewQuestion, 600);
             } else {
-                changeReferenceRange(quizPos); document.getElementById('feedback-msg').innerText = "❌ 正確: " + correct; document.getElementById('feedback-msg').style.color = "red";
-                setTimeout(generateNewQuestion, 1800);
+                // 答錯時，寫入錯題本
+                logError(quizPos, quizHand, ans, correct);
+
+                changeReferenceRange(quizPos); 
+                document.getElementById('feedback-msg').innerText = "❌ 正確: " + correct; 
+                document.getElementById('feedback-msg').style.color = "red";
+                setTimeout(generateNewQuestion, 2200); // 稍微延長一點時間讓你看錯題
             }
             document.getElementById('score-display').innerText = score; document.getElementById('total-display').innerText = total;
             document.getElementById('accuracy-display').innerText = Math.round((score/total)*100);
         }
 
+        // 新增：紀錄錯題功能
+        function logError(pos, hand, wrongAction, correctAction) {
+            const logBox = document.getElementById('error-log-box');
+            const logContent = document.getElementById('error-log-content');
+            
+            // 顯示錯題區塊
+            logBox.style.display = 'block';
+
+            let titleText = pos.replace('_', ' vs ');
+            if(pos === 'NonBB_3bet_HJ_CO') titleText = "HJ/CO 3-Bet";
+            if(pos === 'NonBB_3bet_BTN_SB') titleText = "BTN/SB 3-Bet";
+
+            // 建立一條新的錯題紀錄
+            const errDiv = document.createElement('div');
+            errDiv.className = 'error-item';
+            errDiv.innerHTML = `[${titleText}] <span class="hand-text">${hand}</span> : 錯選 ${wrongAction} ➔ <span class="correct-text">應 ${correctAction}</span>`;
+            
+            // 將最新的錯題插在最上面
+            logContent.insertBefore(errDiv, logContent.firstChild);
+        }
+
         function updateTableDisplay(pos) {
             document.querySelectorAll('.seat').forEach(s => s.classList.remove('hero', 'villain'));
-            if (pos.includes('_')) {
+            
+            if (pos === 'NonBB_3bet_HJ_CO') {
+                const hSeat = document.getElementById('seat-CO'); if(hSeat) hSeat.classList.add('hero');
+                const vSeat = document.getElementById('seat-UTG'); if(vSeat) vSeat.classList.add('villain');
+            }
+            else if (pos === 'NonBB_3bet_BTN_SB') {
+                const hSeat = document.getElementById('seat-BTN'); if(hSeat) hSeat.classList.add('hero');
+                const vSeat = document.getElementById('seat-CO'); if(vSeat) vSeat.classList.add('villain');
+            }
+            else if (pos.includes('_')) {
                 const [hero, villain] = pos.split('_');
                 const hSeat = document.getElementById('seat-' + hero); if(hSeat) hSeat.classList.add('hero');
                 const vSeat = document.getElementById('seat-' + villain); if(vSeat) vSeat.classList.add('villain');
-            } else { const hSeat = document.getElementById('seat-' + pos); if(hSeat) hSeat.classList.add('hero'); }
+            } else { 
+                const hSeat = document.getElementById('seat-' + pos); if(hSeat) hSeat.classList.add('hero'); 
+            }
         }
 
         function changeReferenceRange(pos) {
             const grid = document.getElementById('poker-grid'); grid.innerHTML = '';
             document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
             const b = document.getElementById('btn-' + pos); if(b) b.classList.add('active');
-            let rCom = 0, cCom = 0;
+            let rCom = 0, mCom = 0, cCom = 0;
             
             ranks.forEach((r1, i) => ranks.forEach((r2, j) => {
                 let h = i < j ? r1+r2+'s' : (i > j ? r2+r1+'o' : r1+r2);
@@ -252,25 +337,43 @@
                 cell.className = 'cell'; 
                 cell.innerText = h;
                 
-                // --- 十字分界邏輯：T 為第 5 個位置 (索引 4) ---
-                if (j === 4) cell.classList.add('border-right-thick'); // 垂直分界線
-                if (i === 4) cell.classList.add('border-bottom-thick'); // 水平分界線
+                if (j === 4) cell.classList.add('border-right-thick');
+                if (i === 4) cell.classList.add('border-bottom-thick'); 
 
                 let w = (i === j) ? 6 : (i < j ? 4 : 12);
-                if (ranges[pos].raise.includes(h)) { cell.classList.add('raise'); rCom += w; }
-                else if (ranges[pos].call.includes(h)) { cell.classList.add('call'); cCom += w; }
+                
+                if (ranges[pos].raise && ranges[pos].raise.includes(h)) { cell.classList.add('raise'); rCom += w; }
+                else if (ranges[pos].mixed && ranges[pos].mixed.includes(h)) { cell.classList.add('raise-mixed'); mCom += w; }
+                else if (ranges[pos].call && ranges[pos].call.includes(h)) { cell.classList.add('call'); cCom += w; }
+                
                 grid.appendChild(cell);
             }));
-            const rPct = ((rCom/1326)*100).toFixed(1); const cPct = ((cCom/1326)*100).toFixed(1);
+            
+            const rPct = ((rCom/1326)*100).toFixed(1); 
+            const mPct = ((mCom/1326)*100).toFixed(1); 
+            const cPct = ((cCom/1326)*100).toFixed(1);
+            const fPct = (100 - parseFloat(rPct) - parseFloat(mPct) - parseFloat(cPct)).toFixed(1);
+            
             document.getElementById('stat-raise').innerText = rPct + '%';
+            document.getElementById('stat-mixed').innerText = mPct + '%';
             document.getElementById('stat-call').innerText = cPct + '%';
-            document.getElementById('stat-fold').innerText = (100 - parseFloat(rPct) - parseFloat(cPct)).toFixed(1) + '%';
+            document.getElementById('stat-fold').innerText = fPct + '%';
         }
 
         function toggleAllChecks(s) { document.querySelectorAll('.pos-check').forEach(c => c.checked = s); }
-        function resetScore() { score = 0; total = 0; document.getElementById('score-display').innerText = 0; document.getElementById('total-display').innerText = 0; document.getElementById('accuracy-display').innerText = 0; }
+        
+        // 修改：重新計算時，同時清空錯題本並隱藏
+        function resetScore() { 
+            score = 0; total = 0; 
+            document.getElementById('score-display').innerText = 0; 
+            document.getElementById('total-display').innerText = 0; 
+            document.getElementById('accuracy-display').innerText = 0; 
 
-        initUI(); changeReferenceRange('UTG'); generateNewQuestion();
+            document.getElementById('error-log-content').innerHTML = '';
+            document.getElementById('error-log-box').style.display = 'none';
+        }
+
+        initUI(); changeReferenceRange('NonBB_3bet_HJ_CO'); generateNewQuestion();
     </script>
 </body>
 </html>
