@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
+    <meta charset="UTF-8">
     <title>我的撲克訓練器</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f6f9; }
         .top-container { display: flex; gap: 30px; margin-bottom: 30px; align-items: flex-start; }
         .game-section {
             background-color: #e9ecef; border-radius: 12px; padding: 30px 40px; border: 2px solid #ccc;
-            display: flex; flex-direction: column; align-items: center; box-shadow: 0 8px 16px rgba(0,0,0,0.1); min-width: 380px;
+            display: flex; flex-direction: column; align-items: center; box-shadow: 0 8px 16px rgba(0,0,0,0.1); min-width: 420px;
         }
         .stats-section { display: flex; flex-direction: column; gap: 20px; min-width: 280px; }
         .scoreboard { background-color: #fff; padding: 25px; border-radius: 12px; border: 2px solid #0056b3; text-align: center; }
         
-        /* 錯題紀錄區樣式 */
         .error-log-box {
             background-color: #fff; padding: 15px; border-radius: 12px; border: 1px solid #ffcccc;
             font-size: 13px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); max-height: 180px; overflow-y: auto;
-            display: none; /* 預設隱藏，有錯題才顯示 */
+            display: none;
         }
         .error-log-title { font-weight: bold; margin-bottom: 8px; color: #d9534f; border-bottom: 1px solid #fee; padding-bottom: 5px; }
         .error-item { border-bottom: 1px dashed #eee; padding: 5px 0; color: #555; line-height: 1.4; }
@@ -38,9 +38,19 @@
         .seat {
             position: absolute; width: 42px; height: 42px; background-color: #444; color: #ccc; border-radius: 50%;
             display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; border: 2px solid #777;
-            transform: translate(-50%, -50%); transition: all 0.3s ease;
+            transform: translate(-50%, -50%); transition: all 0.3s ease; z-index: 5;
         }
         
+        /* 莊家鈕 (Dealer Button) 樣式 */
+        .dealer-button {
+            position: absolute; width: 20px; height: 20px; background-color: #ffeb3b; color: #333; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;
+            border: 2px solid #5c3a21; box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 6;
+            transform: translate(-50%, -50%);
+            /* 將按鈕放在 BTN 座位的右下方 */
+            top: 90%; left: 12%; 
+        }
+
         .chip {
             position: absolute; background-color: #e0e0e0; border: 2px dashed #999; border-radius: 12px;
             padding: 2px 6px; font-size: 10px; font-weight: bold; color: #333; transform: translate(-50%, -50%); z-index: 4;
@@ -59,13 +69,18 @@
         .seat.villain { background-color: #f59f00; color: white; border-color: #fff; z-index: 5; }
         
         .hand-display-large { font-size: 64px; font-weight: bold; color: #212529; letter-spacing: 4px; margin: 25px 0; }
-        .action-buttons { display: flex; justify-content: center; gap: 15px; width: 100%; }
-        .action-btn { font-size: 22px; padding: 12px 0; width: 110px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .open-btn { background-color: #ff4d4d; color: white; border: none; }
-        .call-btn { background-color: #51cf66; color: #111; border: none; }
-        .fold-btn { background-color: #4a6fa5; color: white; border: none; }
         
-        #feedback-msg { font-size: 28px; font-weight: bold; margin-top: 20px; height: 35px; }
+        .action-buttons { display: flex; justify-content: center; gap: 8px; width: 100%; flex-wrap: wrap; }
+        .action-btn { font-size: 13px; padding: 12px 0; width: 78px; border-radius: 8px; cursor: pointer; font-weight: bold; border: 1px solid #444; transition: transform 0.1s; }
+        .action-btn:active { transform: scale(0.95); } 
+        
+        .open-btn { background-color: #e60000; color: white; }
+        .mix-rc-btn { background: linear-gradient(135deg, #e60000 50%, #2b8a3e 50%); color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+        .call-btn { background-color: #51cf66; color: #111; }
+        .mix-rf-btn { background: linear-gradient(135deg, #e60000 50%, #4a6fa5 50%); color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+        .fold-btn { background-color: #4a6fa5; color: white; }
+        
+        #feedback-msg { font-size: 24px; font-weight: bold; margin-top: 20px; height: 35px; }
         .divider { border-top: 2px dashed #bbb; margin: 30px 0; width: max-content; min-width: 540px; }
         
         .range-btn { padding: 6px 12px; font-size: 13px; cursor: pointer; margin-right: 4px; border: 1px solid #ccc; background-color: #f8f9fa; border-radius: 4px; margin-bottom: 4px; }
@@ -91,20 +106,26 @@
             color: rgba(255,255,255,0.6); 
             box-sizing: border-box;
         }
-        .raise { background-color: #ff4d4d; color: white; font-weight: bold; } 
-        .raise-mixed { background-color: #ff9999; color: #111; font-weight: bold; } 
+        
+        .raise { background-color: #e60000; color: white; font-weight: bold; } 
+        .raise-mixed { background: linear-gradient(135deg, #e60000 50%, #4a6fa5 50%); color: white !important; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); } 
+        .raise-call { background: linear-gradient(135deg, #e60000 50%, #2b8a3e 50%); color: white !important; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
         .call { background-color: #51cf66; color: #111; font-weight: bold; } 
 
         .border-right-thick { border-right: 3px solid rgba(255,255,255,0.4) !important; }
         .border-bottom-thick { border-bottom: 3px solid rgba(255,255,255,0.4) !important; }
         
-        .range-stats { margin-top: 15px; font-size: 15px; font-weight: bold; background-color: #fff; padding: 10px 20px; border-radius: 8px; border: 1px solid #ccc; width: max-content; display: flex; gap: 20px; }
-        .stat-raise { color: #e60000; } .stat-mixed { color: #ff6666; } .stat-call { color: #2b8a3e; } .stat-fold { color: #3b5984; }
+        .range-stats { margin-top: 15px; font-size: 14px; font-weight: bold; background-color: #fff; padding: 10px 15px; border-radius: 8px; border: 1px solid #ccc; width: max-content; display: flex; gap: 15px; }
+        .stat-raise { color: #e60000; } 
+        .stat-mixed-rc { color: #8c5d00; } 
+        .stat-mixed-rf { color: #6f42c1; } 
+        .stat-call { color: #2b8a3e; } 
+        .stat-fold { color: #3b5984; }
         .controls-row { margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <h2>我的 Poker Preflop 訓練器 (錯題記錄版)</h2>
+    <h2>我的 Poker Preflop 訓練器 (V2.1)</h2>
     <div class="top-container">
         <div class="game-section">
             <h3 id="table-title">UTG</h3>
@@ -114,11 +135,15 @@
                 <div class="seat" id="seat-SB">SB</div><div class="seat" id="seat-BB">BB</div>
                 <div class="seat" id="seat-UTG">UTG</div><div class="seat" id="seat-HJ">HJ</div>
                 <div class="seat" id="seat-CO">CO</div><div class="seat" id="seat-BTN">BTN</div>
+                <div class="dealer-button">D</div>
             </div>
             <div id="table-hand-display" class="hand-display-large">? ?</div>
+            
             <div class="action-buttons">
                 <button class="action-btn open-btn" onclick="checkAnswer('Raise')">Raise</button>
+                <button class="action-btn mix-rc-btn" onclick="checkAnswer('Mix_RC')">Mix R/C</button>
                 <button class="action-btn call-btn" onclick="checkAnswer('Call')">Call</button>
+                <button class="action-btn mix-rf-btn" onclick="checkAnswer('Mix_RF')">Mix R/F</button>
                 <button class="action-btn fold-btn" onclick="checkAnswer('Fold')">Fold</button>
             </div>
             <p id="feedback-msg"></p>
@@ -153,12 +178,13 @@
     </div>
 
     <div class="divider"></div>
-    <h3 id="ref-title">範圍參考表 (ATs-A9s 分界)</h3>
+    <h3 id="ref-title">範圍參考表</h3>
     <div class="controls" id="range-controls"></div>
     <div id="poker-grid" class="grid-container"></div>
     <div class="range-stats">
         <div>Raise: <span id="stat-raise" class="stat-raise">0%</span></div>
-        <div>Mix (有時 Raise): <span id="stat-mixed" class="stat-mixed">0%</span></div>
+        <div>Mix(R/C): <span id="stat-mixed-rc" class="stat-mixed-rc">0%</span></div>
+        <div>Mix(R/F): <span id="stat-mixed-rf" class="stat-mixed-rf">0%</span></div>
         <div>Call: <span id="stat-call" class="stat-call">0%</span></div>
         <div>Fold: <span id="stat-fold" class="stat-fold">0%</span></div>
     </div>
@@ -191,28 +217,55 @@
         }
 
         const ranges = {
-            'UTG': { raise: parseThreshold('279T9', 'TJ', '66'), mixed: [], call: [] },
-            'HJ': { raise: parseThreshold('259988', '9TJ', '55'), mixed: [], call: [] },
-            'CO': { raise: parseThreshold('24687776', '8TTT', '44'), mixed: [], call: [] },
-            'BTN': { raise: parseThreshold('2235666544', '48999', '22'), mixed: [], call: [] },
-            'SB': { raise: parseThreshold('2224665544', '38999', '22'), mixed: [], call: [] },
+            'UTG': { raise: parseThreshold('279T9', 'TJ', '66'), mixed: [], raise_call: [], call: [] },
+            'HJ': { raise: parseThreshold('259988', '9TJ', '55'), mixed: [], raise_call: [], call: [] },
+            'CO': { raise: parseThreshold('24687776', '8TTT', '44'), mixed: [], raise_call: [], call: [] },
+            'BTN': { raise: parseThreshold('2235666544', '48999', '22'), mixed: [], raise_call: [], call: [] },
+            'SB': { raise: parseThreshold('2224665544', '38999', '22'), mixed: [], raise_call: [], call: [] },
             
             'NonBB_3bet_HJ_CO': { 
                 raise: ['AA', 'AKs', 'AQs', 'AJs', 'ATs', 'AKo', 'KK', 'KQs', 'KJs', 'KTs', 'QQ', 'QJs', 'JJ', 'TT', 'A5s', 'A4s'], 
                 mixed: ['A9s', 'A8s', 'A7s', 'A6s', 'A3s', 'AQo', 'KQo', '99', '88', '77', '87s', '76s', '65s', '54s'], 
+                raise_call: [],
                 call: [] 
             },
             'NonBB_3bet_BTN_SB': {
                 raise: ['AA', 'AKs', 'AQs', 'AJs', 'ATs', 'A5s', 'A4s', 'AKo', 'KK', 'KQs', 'KJs', 'KTs',  'AQo', 'KQo', 'QQ', 'QJs', 'QTs', 'JJ', 'JTs', 'TT', '99'],
                 mixed: ['A3s', 'A9s', 'A8s', 'A7s', 'A6s', '88', '77', '66', '76s', '65s', '54s'],
+                raise_call: [],
                 call: []
             },
 
-            'BB_UTG': { raise: [], mixed: [], call: parseThreshold('223665443222', '9TTT', '22') },
-            'BB_HJ': { raise: [], mixed: [], call: parseThreshold('222365443222', '8TTT', '22') },
-            'BB_CO': { raise: [], mixed: [], call: parseThreshold('222245433222', '4999', '22') },
-            'BB_BTN': { raise: [], mixed: [], call: parseThreshold('222222432222', '258888', '22') },
-            'BB_SB': { raise: [], mixed: [], call: parseThreshold('22225654322', '39999', '22') }
+            'BB_UTG': { 
+                raise: ['AA', 'AKs', 'KK'], 
+                mixed: [], 
+                raise_call: ['QJs', 'KTs', 'QTs', 'JTs'], 
+                call: parseThreshold('223665443222', '9TTT', '22') 
+            },
+            'BB_HJ': { 
+                raise: ['AA', 'KK', 'AKs'], 
+                mixed: [], 
+                raise_call: ['KQs', 'QJs', 'JTs', 'T9s', '87s', '76s', '65s', '54s', 'A3s'], 
+                call: parseThreshold('222365443222', '8TTT', '22') 
+            },
+            'BB_CO': { 
+                raise: ['AA', 'KK', 'AKs'], 
+                mixed: [], 
+                raise_call: ['AQs', 'KQs', 'QQ', 'QJs', 'JTs', 'J9s', 'Q9s', 'T9s', 'T8s', '87s', '76s', '65s', '54s'], 
+                call: parseThreshold('222245433222', '4999', '22') 
+            },
+            'BB_BTN': { 
+                raise: ['AA', 'KK', 'AKs', 'AKo', 'AQs', 'QQ'], 
+                mixed: [], 
+                raise_call: ['QJs', 'JJ', 'JTs', 'J9s', 'T9s', 'Q8s', 'J8s', 'T8s', 'T7s', '97s', '87s', '76s', '65s', '54s', 'A5s'], 
+                call: parseThreshold('222222432222', '258888', '22') 
+            },
+            'BB_SB': { 
+                raise: ['AA', 'KK', 'AKs', 'AKo', 'AQs', 'AJs', 'KQs', 'KJs', 'KTs', 'QQ', 'AQo', 'QJs', 'QTs', 'JJ', 'JTs', 'J9s', 'TT', 'T9s', 'T8s', '98s', '87s', '76s', '65s', '54s', 'A5s', 'A4s', 'A3o', 'A5o'], 
+                mixed: [], 
+                raise_call: ['KQo', 'ATs', 'K9s', '99', 'A4o', 'A2o', 'A2s', 'J2s', '66', '53s', '43s', 'A7s'], 
+                call: parseThreshold('22225654322', '39999', '22') 
+            }
         };
 
         function initUI() {
@@ -257,12 +310,21 @@
             document.getElementById('table-hand-display').innerText = quizHand;
         }
 
+        const actionDisplayNames = {
+            'Raise': 'Raise',
+            'Mix_RC': 'Raise/Call',
+            'Call': 'Call',
+            'Mix_RF': 'Raise/Fold',
+            'Fold': 'Fold'
+        };
+
         function checkAnswer(ans) {
             if (isWaiting) return; isWaiting = true;
             let range = ranges[quizPos], correct = 'Fold';
             
             if (range.raise && range.raise.includes(quizHand)) correct = 'Raise';
-            else if (range.mixed && range.mixed.includes(quizHand)) correct = 'Raise'; 
+            else if (range.raise_call && range.raise_call.includes(quizHand)) correct = 'Mix_RC';
+            else if (range.mixed && range.mixed.includes(quizHand)) correct = 'Mix_RF'; 
             else if (range.call && range.call.includes(quizHand)) correct = 'Call';
             
             total++;
@@ -272,36 +334,30 @@
                 document.getElementById('feedback-msg').style.color = "green";
                 setTimeout(generateNewQuestion, 600);
             } else {
-                // 答錯時，寫入錯題本
-                logError(quizPos, quizHand, ans, correct);
-
+                logError(quizPos, quizHand, actionDisplayNames[ans], actionDisplayNames[correct]);
                 changeReferenceRange(quizPos); 
-                document.getElementById('feedback-msg').innerText = "❌ 正確: " + correct; 
+                document.getElementById('feedback-msg').innerText = "❌ 正確: " + actionDisplayNames[correct]; 
                 document.getElementById('feedback-msg').style.color = "red";
-                setTimeout(generateNewQuestion, 2200); // 稍微延長一點時間讓你看錯題
+                setTimeout(generateNewQuestion, 2200);
             }
             document.getElementById('score-display').innerText = score; document.getElementById('total-display').innerText = total;
             document.getElementById('accuracy-display').innerText = Math.round((score/total)*100);
         }
 
-        // 新增：紀錄錯題功能
         function logError(pos, hand, wrongAction, correctAction) {
             const logBox = document.getElementById('error-log-box');
             const logContent = document.getElementById('error-log-content');
             
-            // 顯示錯題區塊
             logBox.style.display = 'block';
 
             let titleText = pos.replace('_', ' vs ');
             if(pos === 'NonBB_3bet_HJ_CO') titleText = "HJ/CO 3-Bet";
             if(pos === 'NonBB_3bet_BTN_SB') titleText = "BTN/SB 3-Bet";
 
-            // 建立一條新的錯題紀錄
             const errDiv = document.createElement('div');
             errDiv.className = 'error-item';
             errDiv.innerHTML = `[${titleText}] <span class="hand-text">${hand}</span> : 錯選 ${wrongAction} ➔ <span class="correct-text">應 ${correctAction}</span>`;
             
-            // 將最新的錯題插在最上面
             logContent.insertBefore(errDiv, logContent.firstChild);
         }
 
@@ -329,7 +385,8 @@
             const grid = document.getElementById('poker-grid'); grid.innerHTML = '';
             document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
             const b = document.getElementById('btn-' + pos); if(b) b.classList.add('active');
-            let rCom = 0, mCom = 0, cCom = 0;
+            
+            let rCom = 0, mrcCom = 0, mrfCom = 0, cCom = 0;
             
             ranks.forEach((r1, i) => ranks.forEach((r2, j) => {
                 let h = i < j ? r1+r2+'s' : (i > j ? r2+r1+'o' : r1+r2);
@@ -343,26 +400,28 @@
                 let w = (i === j) ? 6 : (i < j ? 4 : 12);
                 
                 if (ranges[pos].raise && ranges[pos].raise.includes(h)) { cell.classList.add('raise'); rCom += w; }
-                else if (ranges[pos].mixed && ranges[pos].mixed.includes(h)) { cell.classList.add('raise-mixed'); mCom += w; }
+                else if (ranges[pos].raise_call && ranges[pos].raise_call.includes(h)) { cell.classList.add('raise-call'); mrcCom += w; }
+                else if (ranges[pos].mixed && ranges[pos].mixed.includes(h)) { cell.classList.add('raise-mixed'); mrfCom += w; }
                 else if (ranges[pos].call && ranges[pos].call.includes(h)) { cell.classList.add('call'); cCom += w; }
                 
                 grid.appendChild(cell);
             }));
             
             const rPct = ((rCom/1326)*100).toFixed(1); 
-            const mPct = ((mCom/1326)*100).toFixed(1); 
+            const mrcPct = ((mrcCom/1326)*100).toFixed(1); 
+            const mrfPct = ((mrfCom/1326)*100).toFixed(1); 
             const cPct = ((cCom/1326)*100).toFixed(1);
-            const fPct = (100 - parseFloat(rPct) - parseFloat(mPct) - parseFloat(cPct)).toFixed(1);
+            const fPct = (100 - parseFloat(rPct) - parseFloat(mrcPct) - parseFloat(mrfPct) - parseFloat(cPct)).toFixed(1);
             
             document.getElementById('stat-raise').innerText = rPct + '%';
-            document.getElementById('stat-mixed').innerText = mPct + '%';
+            document.getElementById('stat-mixed-rc').innerText = mrcPct + '%';
+            document.getElementById('stat-mixed-rf').innerText = mrfPct + '%';
             document.getElementById('stat-call').innerText = cPct + '%';
             document.getElementById('stat-fold').innerText = fPct + '%';
         }
 
         function toggleAllChecks(s) { document.querySelectorAll('.pos-check').forEach(c => c.checked = s); }
         
-        // 修改：重新計算時，同時清空錯題本並隱藏
         function resetScore() { 
             score = 0; total = 0; 
             document.getElementById('score-display').innerText = 0; 
@@ -377,6 +436,3 @@
     </script>
 </body>
 </html>
-
-
-
